@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theory - selectbreakcoint</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        .math-block {
+            background: var(--color-bg-alt);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            overflow-x: auto;
+            text-align: center;
+        }
+        .definition {
+            background: rgba(42, 125, 125, 0.08);
+            border-left: 4px solid var(--color-secondary);
+            padding: 20px;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin: 24px 0;
+        }
+        .theorem {
+            background: rgba(196, 93, 53, 0.08);
+            border-left: 4px solid var(--color-primary);
+            padding: 20px;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin: 24px 0;
+        }
+        .definition h4, .theorem h4 {
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">⟨⟩</span>
+                <span class="logo-text">selectbreakcoint</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="getting-started.html">Getting Started</a></li>
+                <li><a href="api-reference.html">API Reference</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="theory.html" class="active">Theory</a></li>
+                <li><a href="https://github.com/merwanroudane/selectbreakcoint" class="nav-github" target="_blank">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                </a></li>
+            </ul>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1>Theory</h1>
+            <p>Mathematical foundations and econometric methodology behind structural break detection in cointegrating regressions.</p>
+        </div>
+    </header>
+
+    <section class="content-section">
+        <div class="container">
+            <h2>Cointegration Fundamentals</h2>
+            
+            <div class="definition">
+                <h4>Definition: Cointegration</h4>
+                <p>Two I(1) series y<sub>t</sub> and x<sub>t</sub> are <strong>cointegrated</strong> if there exists a linear combination y<sub>t</sub> - βx<sub>t</sub> that is stationary (I(0)). The parameter β is the cointegrating coefficient.</p>
+            </div>
+
+            <p>The standard cointegrating regression is:</p>
+            <div class="math-block">
+                y<sub>t</sub> = μ + βx<sub>t</sub> + u<sub>t</sub>, &nbsp;&nbsp; t = 1, ..., T
+            </div>
+            
+            <p>where:</p>
+            <ul>
+                <li><strong>y<sub>t</sub></strong> is the dependent variable (I(1))</li>
+                <li><strong>x<sub>t</sub></strong> is the regressor (I(1))</li>
+                <li><strong>μ</strong> is the intercept</li>
+                <li><strong>β</strong> is the cointegrating coefficient</li>
+                <li><strong>u<sub>t</sub></strong> is the equilibrium error (I(0) under cointegration)</li>
+            </ul>
+
+            <h3>Testing for Cointegration</h3>
+            <p>The Engle-Granger two-step procedure tests H₀: No cointegration by:</p>
+            <ol>
+                <li>Estimating the cointegrating regression by OLS</li>
+                <li>Testing the residuals û<sub>t</sub> for a unit root using an ADF test</li>
+            </ol>
+            <p>The test statistic is the t-ratio from the ADF regression:</p>
+            <div class="math-block">
+                Δû<sub>t</sub> = ρû<sub>t-1</sub> + Σ<sub>j=1</sub><sup>k</sup> γ<sub>j</sub>Δû<sub>t-j</sub> + ε<sub>t</sub>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="container">
+            <h2>Cointegration with Structural Breaks</h2>
+            
+            <p>The key insight of Schmidt and Schweikert (2021) is that standard cointegration tests may fail to detect cointegration when structural breaks are present. The extended model allows for m structural breaks:</p>
+            
+            <div class="math-block">
+                y<sub>t</sub> = Σ<sub>i=1</sub><sup>m₁+1</sup> μ*<sub>i</sub>φ<sub>t,τ₁,ᵢ₋₁</sub> + Σ<sub>j=1</sub><sup>m₂+1</sup> β*<sub>j</sub>x<sub>t</sub>φ<sub>t,τ₂,ⱼ₋₁</sub> + u<sub>t</sub>
+            </div>
+            
+            <p>where:</p>
+            <ul>
+                <li><strong>φ<sub>t,τ</sub> = 1(t > ⌊Tτ⌋)</strong> is the indicator function</li>
+                <li><strong>τ₁,ᵢ</strong> are break fractions for the intercept</li>
+                <li><strong>τ₂,ⱼ</strong> are break fractions for the slope</li>
+                <li><strong>m₁, m₂</strong> are the number of breaks in intercept and slope</li>
+            </ul>
+
+            <h3>Equivalent Formulation</h3>
+            <p>The model can be rewritten with baseline coefficients and parameter changes:</p>
+            <div class="math-block">
+                y<sub>t</sub> = μ₁ + Σ<sub>i=2</sub><sup>m₁+1</sup> δ<sup>μ</sup><sub>i</sub>φ<sub>t,τ₁,ᵢ₋₁</sub> + β₁x<sub>t</sub> + Σ<sub>j=2</sub><sup>m₂+1</sup> δ<sup>β</sup><sub>j</sub>x<sub>t</sub>φ<sub>t,τ₂,ⱼ₋₁</sub> + u<sub>t</sub>
+            </div>
+            <p>where δ<sup>μ</sup><sub>i</sub> and δ<sup>β</sup><sub>j</sub> represent the changes in coefficients at each break.</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="container">
+            <h2>Adaptive Lasso Methodology</h2>
+            
+            <h3>The Challenge</h3>
+            <p>When the number and location of breaks are unknown, the problem becomes one of model selection in a high-dimensional setting. Schmidt and Schweikert (2021) propose using the adaptive lasso to simultaneously select breaks and estimate coefficients.</p>
+
+            <h3>Adaptive Lasso Estimator</h3>
+            <p>The adaptive lasso minimizes the penalized objective function:</p>
+            <div class="math-block">
+                V<sub>T</sub>(β) = Σ<sub>t=1</sub><sup>T</sup>(y<sub>t</sub> - X<sub>t</sub>'β)² + λ<sub>T</sub> Σ<sub>j=1</sub><sup>p</sup> w<sub>j</sub>|β<sub>j</sub>|
+            </div>
+            
+            <p>where the adaptive weights are:</p>
+            <div class="math-block">
+                w<sub>j</sub> = 1 / |β̃<sub>j</sub>|<sup>γ</sup>
+            </div>
+            
+            <p>and β̃<sub>j</sub> are initial consistent estimates (from plain lasso).</p>
+
+            <div class="theorem">
+                <h4>Theorem 1: Oracle Property</h4>
+                <p>Under regularity conditions, the adaptive lasso estimator possesses the oracle property:</p>
+                <ol>
+                    <li><strong>Sparsity</strong>: β̂<sub>j</sub> = 0 for all inactive (zero) coefficients with probability tending to 1</li>
+                    <li><strong>Efficiency</strong>: The estimator of active coefficients achieves the same asymptotic distribution as if the true model were known</li>
+                </ol>
+            </div>
+
+            <h3>Algorithm 1: Three-Step Procedure</h3>
+            <p>Following Section 2.2 of Schmidt and Schweikert (2021):</p>
+            
+            <div class="algorithm-steps" style="max-width: 800px; margin: 40px auto;">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Initial Lasso</h3>
+                        <p>Apply plain lasso (w<sub>j</sub> = 1) to the full model with all potential break points. Select λ<sub>T</sub> using BIC*.</p>
+                    </div>
+                </div>
+                <div class="step-connector" style="width: 2px; height: 40px; margin: 0 auto; background: linear-gradient(180deg, var(--color-primary-light), var(--color-secondary-light));"></div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Adaptive Lasso</h3>
+                        <p>Compute adaptive weights from Step 1 estimates. Apply adaptive lasso with weights w<sub>j</sub> = 1/|β̃<sub>j</sub>|<sup>γ</sup>.</p>
+                    </div>
+                </div>
+                <div class="step-connector" style="width: 2px; height: 40px; margin: 0 auto; background: linear-gradient(180deg, var(--color-primary-light), var(--color-secondary-light));"></div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Post-Lasso OLS</h3>
+                        <p>Estimate the final model by OLS using only the selected breaks. Add intercept breaks at slope break locations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="container">
+            <h2>Model Selection</h2>
+            
+            <h3>Standard BIC</h3>
+            <p>The Bayesian Information Criterion for model selection:</p>
+            <div class="math-block">
+                BIC(λ) = log(SSR/T) + (log T / T) × df
+            </div>
+            <p>where df is the number of non-zero coefficients.</p>
+
+            <h3>Modified BIC (BIC*)</h3>
+            <p>For the diverging parameter setting, Wang, Li & Leng (2009) propose the modified BIC:</p>
+            <div class="math-block">
+                BIC*(λ) = log(SSR/T) + (log T / T) × df × log(log(d*<sub>T</sub>))
+            </div>
+            <p>where d*<sub>T</sub> is the total number of potential parameters. This modification provides consistent model selection when the number of parameters grows with the sample size.</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="container">
+            <h2>Cointegration Testing with Breaks</h2>
+            
+            <h3>Algorithm 2: Infimum Test</h3>
+            <p>Following Section 2.3 of Schmidt and Schweikert (2021), the cointegration test proceeds as:</p>
+            <ol>
+                <li>For each tuning parameter λ, estimate breaks using adaptive lasso</li>
+                <li>Re-estimate using post-lasso OLS</li>
+                <li>Test residuals using ADF or bias-corrected Z<sub>t</sub> statistics</li>
+                <li>Select the model specification that <strong>minimizes</strong> the test statistic (infimum test)</li>
+            </ol>
+            
+            <div class="math-block">
+                t* = inf<sub>λ∈Λ</sub> t<sub>ADF</sub>(λ)
+            </div>
+
+            <h3>Test Statistics</h3>
+            
+            <h4>ADF-Type Statistic</h4>
+            <p>The t-ratio from the ADF regression on residuals:</p>
+            <div class="math-block">
+                t<sub>ADF</sub> = ρ̂ / se(ρ̂)
+            </div>
+            
+            <h4>Bias-Corrected Z<sub>t</sub> Statistic</h4>
+            <p>Following Phillips (1987), the bias-corrected estimator accounts for serial correlation:</p>
+            <div class="math-block">
+                Z<sub>t</sub> = (ρ* - 1) / √(σ̂² / Σû²<sub>t-1</sub>)
+            </div>
+            <p>where ρ* is the bias-corrected autoregressive coefficient and σ̂² is the long-run variance estimate.</p>
+
+            <h3>Critical Values</h3>
+            <p>Critical values from Table 1 of Schmidt and Schweikert (2021) depend on:</p>
+            <ul>
+                <li>Maximum number of breaks allowed (1-6)</li>
+                <li>Sample size (T = 100, 200, 400, or asymptotic)</li>
+                <li>Test type (ADF or Z<sub>t</sub>)</li>
+            </ul>
+            <p>The package includes all tabulated critical values for accurate inference.</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="container">
+            <h2>Endogeneity Correction</h2>
+            
+            <p>When regressors are potentially endogenous, Saikkonen (1991) and Stock and Watson (1993) propose augmenting the regression with leads and lags of the differenced regressor:</p>
+            
+            <div class="math-block">
+                y<sub>t</sub> = μ + βx<sub>t</sub> + Σ<sub>j=-k</sub><sup>k</sup> γ<sub>j</sub>Δx<sub>t-j</sub> + u*<sub>t</sub>
+            </div>
+            
+            <p>This dynamic augmentation:</p>
+            <ul>
+                <li>Asymptotically removes endogeneity bias</li>
+                <li>Yields efficient estimates of the cointegrating coefficient</li>
+                <li>Allows for weak exogeneity violation</li>
+            </ul>
+            
+            <p>In the package, set <code>dynamic_lags=k</code> to include k leads and lags.</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="container">
+            <h2>Alternative Methods</h2>
+            
+            <h3>Gregory-Hansen Test (1996)</h3>
+            <p>Tests for cointegration allowing for a single structural break at an unknown date. The test minimizes the ADF statistic over all possible break points:</p>
+            <div class="math-block">
+                t*<sub>GH</sub> = inf<sub>τ∈[τ₀, 1-τ₀]</sub> t<sub>ADF</sub>(τ)
+            </div>
+            <p>Models available: C (level shift), C/T (level shift with trend), C/S (regime shift).</p>
+
+            <h3>Hatemi-J Test (2008)</h3>
+            <p>Extends Gregory-Hansen to allow for two structural breaks. The test searches over all possible pairs of break points:</p>
+            <div class="math-block">
+                t*<sub>HJ</sub> = inf<sub>τ₁, τ₂</sub> t<sub>ADF</sub>(τ₁, τ₂)
+            </div>
+            <p>Subject to minimum regime size constraints.</p>
+
+            <h3>Advantages of Adaptive Lasso Approach</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>GH/HJ Tests</th>
+                            <th>Adaptive Lasso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Number of breaks</td>
+                            <td>Fixed (1 or 2)</td>
+                            <td>Data-driven (up to max)</td>
+                        </tr>
+                        <tr>
+                            <td>Break selection</td>
+                            <td>Grid search</td>
+                            <td>Simultaneous estimation</td>
+                        </tr>
+                        <tr>
+                            <td>Oracle property</td>
+                            <td>No</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Computational cost</td>
+                            <td>O(T²) or O(T⁴)</td>
+                            <td>O(T·p)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="container">
+            <h2>References</h2>
+            
+            <ul style="line-height: 2.2;">
+                <li><strong>Schmidt, A. and Schweikert, K. (2021)</strong>. "Multiple structural breaks in cointegrating regressions: A model selection approach." <em>Studies in Nonlinear Dynamics & Econometrics</em>.</li>
+                <li><strong>Engle, R.F. and Granger, C.W.J. (1987)</strong>. "Co-integration and error correction: Representation, estimation, and testing." <em>Econometrica</em>, 55(2), 251-276.</li>
+                <li><strong>Gregory, A.W. and Hansen, B.E. (1996)</strong>. "Residual-based tests for cointegration in models with regime shifts." <em>Journal of Econometrics</em>, 70(1), 99-126.</li>
+                <li><strong>Hatemi-J, A. (2008)</strong>. "Tests for cointegration with two unknown regime shifts." <em>Empirical Economics</em>, 35(3), 497-505.</li>
+                <li><strong>Zou, H. (2006)</strong>. "The adaptive lasso and its oracle properties." <em>Journal of the American Statistical Association</em>, 101(476), 1418-1429.</li>
+                <li><strong>Phillips, P.C.B. (1987)</strong>. "Time series regression with a unit root." <em>Econometrica</em>, 55(2), 277-301.</li>
+                <li><strong>Saikkonen, P. (1991)</strong>. "Asymptotically efficient estimation of cointegration regressions." <em>Econometric Theory</em>, 7(1), 1-21.</li>
+                <li><strong>Stock, J.H. and Watson, M.W. (1993)</strong>. "A simple estimator of cointegrating vectors in higher order integrated systems." <em>Econometrica</em>, 61(4), 783-820.</li>
+                <li><strong>Wang, H., Li, B. and Leng, C. (2009)</strong>. "Shrinkage tuning parameter selection with a diverging number of parameters." <em>Journal of the Royal Statistical Society: Series B</em>, 71(3), 671-683.</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-icon">⟨⟩</span>
+                    <span class="logo-text">selectbreakcoint</span>
+                    <p>Developed by Dr. Merwan Roudane</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="getting-started.html">Getting Started</a>
+                        <a href="api-reference.html">API Reference</a>
+                        <a href="examples.html">Examples</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="theory.html">Theory</a>
+                        <a href="https://github.com/merwanroudane/selectbreakcoint" target="_blank">GitHub</a>
+                        <a href="https://pypi.org/project/selectbreakcoint/" target="_blank">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 selectbreakcoint. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

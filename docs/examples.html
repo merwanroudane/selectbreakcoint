@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples - selectbreakcoint</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">⟨⟩</span>
+                <span class="logo-text">selectbreakcoint</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="getting-started.html">Getting Started</a></li>
+                <li><a href="api-reference.html">API Reference</a></li>
+                <li><a href="examples.html" class="active">Examples</a></li>
+                <li><a href="theory.html">Theory</a></li>
+                <li><a href="https://github.com/merwanroudane/selectbreakcoint" class="nav-github" target="_blank">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                </a></li>
+            </ul>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>Examples</h1>
+            <p>Real-world applications and comprehensive tutorials for structural break analysis.</p>
+        </div>
+    </header>
+
+    <!-- Example 1: Lütkepohl Data -->
+    <section class="content-section">
+        <div class="container">
+            <h2>Example 1: Consumption-Investment Cointegration</h2>
+            <p>This example uses the Lütkepohl dataset containing quarterly West German macroeconomic data from 1960Q1 to 1982Q4. We analyze the cointegrating relationship between consumption (CONS) and investment (INV) with potential structural breaks, using lag 2 for endogeneity correction.</p>
+            
+            <div class="info-box">
+                <h4>📊 Dataset: lutkepohl2.xlsx</h4>
+                <p>92 quarterly observations with variables CONS (log consumption), INC (log income), and INV (log investment). We use CONS as the dependent variable and INV as the independent variable.</p>
+            </div>
+
+            <h3>Step 1: Load and Explore Data</h3>
+            <pre><code class="language-python">import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from selectbreakcoint import (
+    AdaptiveLassoBreaks, 
+    CointegrationTest,
+    adf_test,
+    engle_granger_test
+)
+
+# Load the Lütkepohl dataset
+data = pd.read_excel('lutkepohl2.xlsx')
+print(data.head())
+
+#    Unnamed: 0      CONS       INC       INV
+# 0     1960Q1  6.018776  6.129050  5.277568
+# 1     1960Q2  6.031984  6.160634  5.372586
+# 2     1960Q3  6.058495  6.161539  5.412489
+# 3     1960Q4  6.030424  6.173919  5.358274
+# 4     1961Q1  6.040255  6.191496  5.440005
+
+# Extract variables
+cons = data['CONS'].values  # Log consumption (dependent variable)
+inv = data['INV'].values    # Log investment (independent variable)
+
+T = len(cons)
+print(f"Sample size: {T} observations")
+print(f"Period: {data.iloc[0, 0]} to {data.iloc[-1, 0]}")
+
+# Basic statistics
+print(f"\nCONS: mean={cons.mean():.4f}, std={cons.std():.4f}")
+print(f"INV:  mean={inv.mean():.4f}, std={inv.std():.4f}")</code></pre>
+
+            <h3>Step 2: Test for Unit Roots</h3>
+            <p>Before testing for cointegration, we verify that both series are I(1):</p>
+            
+            <pre><code class="language-python"># Test levels (should NOT reject - series are non-stationary)
+adf_cons_level, lag_cons, _ = adf_test(cons)
+adf_inv_level, lag_inv, _ = adf_test(inv)
+print("Unit Root Tests on Levels:")
+print(f"  CONS: ADF = {adf_cons_level:.3f} (lag={lag_cons})")
+print(f"  INV:  ADF = {adf_inv_level:.3f} (lag={lag_inv})")
+
+# Test first differences (should reject - differences are stationary)
+adf_cons_diff, lag_cons_d, _ = adf_test(np.diff(cons))
+adf_inv_diff, lag_inv_d, _ = adf_test(np.diff(inv))
+print("\nUnit Root Tests on First Differences:")
+print(f"  ΔCONS: ADF = {adf_cons_diff:.3f} (lag={lag_cons_d})")
+print(f"  ΔINV:  ADF = {adf_inv_diff:.3f} (lag={lag_inv_d})")
+
+# Critical values at 5%: approximately -2.89
+print("\n5% critical value ≈ -2.89")
+print("Conclusion: Both series are I(1) - suitable for cointegration analysis")</code></pre>
+
+            <h3>Step 3: Standard Engle-Granger Test</h3>
+            <p>First, test for cointegration without allowing for structural breaks:</p>
+            
+            <pre><code class="language-python"># Engle-Granger test: CONS = α + β*INV + u
+eg_result = engle_granger_test(cons, inv)
+
+print("=" * 60)
+print("Engle-Granger Cointegration Test (No Breaks)")
+print("=" * 60)
+print(f"Model: CONS = μ + β*INV + u")
+print(f"\nTest statistic: {eg_result.test_statistic:.4f}")
+print(f"Critical values:")
+print(f"  10%: {eg_result.critical_values[0.10]:.2f}")
+print(f"   5%: {eg_result.critical_values[0.05]:.2f}")
+print(f"   1%: {eg_result.critical_values[0.01]:.2f}")
+print(f"\nCointegrated at 5%? {eg_result.is_cointegrated}")</code></pre>
+
+            <h3>Step 4: Detect Structural Breaks with Adaptive Lasso</h3>
+            <p>Now apply the adaptive lasso approach to detect potential breaks with lag 2:</p>
+            
+            <pre><code class="language-python"># Detect structural breaks
+# - max_breaks=2: Allow up to 2 structural breaks
+# - dynamic_lags=2: Include 2 leads and lags for endogeneity correction
+# - trim=0.05: Exclude first/last 5% of observations as break candidates
+
+model = AdaptiveLassoBreaks(
+    max_breaks=2,
+    trim=0.05,
+    dynamic_lags=2  # Lag 2 for endogeneity correction
+)
+
+# Fit model: CONS = μ + β*INV + u (with potential breaks)
+result = model.fit(inv, cons)
+
+print("\n" + "=" * 60)
+print("Structural Break Detection Results")
+print("=" * 60)
+print(result)
+
+# Detailed output
+print(f"\n{'='*60}")
+print("SUMMARY")
+print(f"{'='*60}")
+print(f"Number of breaks detected: {result.n_breaks}")
+print(f"BIC: {result.bic:.4f}")
+print(f"MSE: {result.mse:.6f}")
+
+if result.n_breaks > 0:
+    print(f"\n{'─'*40}")
+    print("Break Details:")
+    print(f"{'─'*40}")
+    for i, (frac, date) in enumerate(zip(result.break_fractions, result.break_dates)):
+        # Convert to quarter label
+        quarter_idx = int(date)
+        if quarter_idx < len(data):
+            quarter = data.iloc[quarter_idx, 0]
+        else:
+            quarter = f"t={quarter_idx}"
+        print(f"  Break {i+1}: {quarter}")
+        print(f"           Index: t={date}")
+        print(f"           Fraction: τ={frac:.4f}")
+    
+    print(f"\n{'─'*40}")
+    print("Regime Coefficients:")
+    print(f"{'─'*40}")
+    for i, (mu, beta) in enumerate(zip(result.regime_intercepts, result.regime_slopes)):
+        print(f"  Regime {i+1}: CONS = {mu:.4f} + {beta:.4f} × INV")
+    
+    print(f"\n{'─'*40}")
+    print("Parameter Changes at Breaks:")
+    print(f"{'─'*40}")
+    for i, (d_mu, d_beta) in enumerate(zip(result.intercept_changes, result.slope_changes)):
+        print(f"  At Break {i+1}: Δμ = {d_mu:.4f}, Δβ = {d_beta:.4f}")
+else:
+    print("\nNo structural breaks detected.")
+    print(f"Estimated model: CONS = {result.regime_intercepts[0]:.4f} + {result.regime_slopes[0]:.4f} × INV")</code></pre>
+
+            <h3>Step 5: Cointegration Test with Structural Breaks</h3>
+            <pre><code class="language-python"># Test for cointegration allowing up to 2 breaks
+test = CointegrationTest(
+    max_breaks=2,
+    test_type='adf',
+    lag_selection='aic',
+    dynamic_lags=2  # Lag 2 for consistency
+)
+
+test_result = test.test(inv, cons)
+
+print("\n" + "=" * 60)
+print("Cointegration Test with Structural Breaks")
+print("=" * 60)
+print(test_result)
+
+# Comparison
+print("\n" + "=" * 60)
+print("Comparison: Effect of Allowing Breaks")
+print("=" * 60)
+print(f"{'Method':<25} {'Statistic':>12} {'Cointegrated':>15}")
+print("-" * 55)
+print(f"{'Engle-Granger (0 breaks)':<25} {eg_result.test_statistic:>12.4f} {str(eg_result.is_cointegrated):>15}")
+print(f"{'Adaptive Lasso (≤2 breaks)':<25} {test_result.test_statistic:>12.4f} {str(test_result.is_cointegrated):>15}")</code></pre>
+
+            <h3>Step 6: Predictions and Residuals</h3>
+            <pre><code class="language-python"># Get predictions from the fitted model
+y_pred = model.predict(inv)
+
+# Get residuals
+residuals = model.get_residuals()
+
+# Summary statistics
+print("Residual Analysis:")
+print(f"  Mean: {residuals.mean():.6f}")
+print(f"  Std:  {residuals.std():.4f}")
+print(f"  Min:  {residuals.min():.4f}")
+print(f"  Max:  {residuals.max():.4f}")</code></pre>
+
+            <h3>Step 7: Visualize Results</h3>
+            <pre><code class="language-python">import matplotlib.pyplot as plt
+
+fig, axes = plt.subplots(3, 1, figsize=(12, 10))
+
+# Plot 1: Time series with break lines
+ax1 = axes[0]
+time_index = np.arange(T)
+ax1.plot(time_index, cons, label='CONS (Log Consumption)', color='#c45d35', linewidth=1.5)
+ax1.plot(time_index, inv, label='INV (Log Investment)', color='#2a7d7d', linewidth=1.5)
+
+# Add vertical lines for detected breaks
+if result.n_breaks > 0:
+    for i, date in enumerate(result.break_dates):
+        label = f'Break {i+1}' if i == 0 else None
+        ax1.axvline(x=date, color='gray', linestyle='--', alpha=0.7, linewidth=2, label=label)
+
+ax1.set_title('Consumption and Investment Time Series (1960Q1-1982Q4)', fontsize=12, fontweight='bold')
+ax1.set_xlabel('Observation (Quarter)')
+ax1.set_ylabel('Log Level')
+ax1.legend(loc='upper left')
+ax1.grid(True, alpha=0.3)
+
+# Plot 2: Scatter plot with regime-specific regression lines
+ax2 = axes[1]
+colors = ['#2a7d7d', '#c45d35', '#d4a574']
+
+if result.n_breaks == 0:
+    # Single regime
+    ax2.scatter(inv, cons, alpha=0.6, color='#c45d35', s=40, label='Data')
+    inv_range = np.linspace(inv.min(), inv.max(), 100)
+    cons_fitted = result.regime_intercepts[0] + result.regime_slopes[0] * inv_range
+    ax2.plot(inv_range, cons_fitted, color='#2a7d7d', linewidth=2.5, label='Fitted Line')
+else:
+    # Multiple regimes - color points by regime
+    break_points = [0] + list(result.break_dates.astype(int)) + [T]
+    
+    for i in range(len(break_points) - 1):
+        start, end = break_points[i], break_points[i+1]
+        inv_regime = inv[start:end]
+        cons_regime = cons[start:end]
+        
+        # Scatter points for this regime
+        ax2.scatter(inv_regime, cons_regime, alpha=0.6, color=colors[i % len(colors)], 
+                   s=40, label=f'Regime {i+1}')
+        
+        # Regression line for this regime
+        if len(inv_regime) > 1:
+            inv_range = np.linspace(inv_regime.min(), inv_regime.max(), 50)
+            cons_fitted = result.regime_intercepts[i] + result.regime_slopes[i] * inv_range
+            ax2.plot(inv_range, cons_fitted, color=colors[i % len(colors)], 
+                    linewidth=2.5, linestyle='-')
+
+ax2.set_title('Cointegrating Relationship by Regime', fontsize=12, fontweight='bold')
+ax2.set_xlabel('INV (Log Investment)')
+ax2.set_ylabel('CONS (Log Consumption)')
+ax2.legend()
+ax2.grid(True, alpha=0.3)
+
+# Plot 3: Residuals
+ax3 = axes[2]
+ax3.plot(time_index, result.residuals, color='#2a7d7d', linewidth=1)
+ax3.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
+ax3.fill_between(time_index, result.residuals, 0, alpha=0.3, color='#2a7d7d')
+
+# Add break lines to residual plot
+if result.n_breaks > 0:
+    for date in result.break_dates:
+        ax3.axvline(x=date, color='#c45d35', linestyle='--', alpha=0.7, linewidth=2)
+
+ax3.set_title('Cointegration Residuals (Equilibrium Errors)', fontsize=12, fontweight='bold')
+ax3.set_xlabel('Observation (Quarter)')
+ax3.set_ylabel('Residual')
+ax3.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig('lutkepohl_analysis.png', dpi=150, bbox_inches='tight')
+plt.show()
+
+print("\nFigure saved as 'lutkepohl_analysis.png'")</code></pre>
+        </div>
+    </section>
+
+    <!-- Example 2: Complete Workflow -->
+    <section class="content-section">
+        <div class="container">
+            <h2>Example 2: Complete Analysis Workflow Template</h2>
+            <p>A reusable template for cointegration analysis with structural breaks:</p>
+            
+            <pre><code class="language-python">"""
+Complete Cointegration Analysis with Structural Breaks
+======================================================
+Template for analyzing any pair of I(1) variables.
+Based on Schmidt & Schweikert (2021) methodology.
+"""
+
+import numpy as np
+import pandas as pd
+from selectbreakcoint import (
+    AdaptiveLassoBreaks,
+    CointegrationTest,
+    adf_test,
+    engle_granger_test,
+    gregory_hansen_test,
+    hatemi_j_test,
+    get_critical_values
+)
+
+def complete_cointegration_analysis(y, x, max_breaks=2, dynamic_lags=2, 
+                                     var_names=('Y', 'X'), verbose=True):
+    """
+    Perform complete cointegration analysis with structural breaks.
+    
+    Parameters
+    ----------
+    y : array-like
+        Dependent variable (should be I(1))
+    x : array-like
+        Independent variable (should be I(1))
+    max_breaks : int
+        Maximum number of breaks to consider (default: 2)
+    dynamic_lags : int
+        Leads/lags for endogeneity correction (default: 2)
+    var_names : tuple
+        Names for (y, x) variables
+    verbose : bool
+        Print detailed output
+        
+    Returns
+    -------
+    dict : Complete results dictionary
+    """
+    y = np.asarray(y).flatten()
+    x = np.asarray(x).flatten()
+    T = len(y)
+    y_name, x_name = var_names
+    
+    results = {'sample_size': T, 'var_names': var_names}
+    
+    if verbose:
+        print("=" * 70)
+        print(f"COINTEGRATION ANALYSIS: {y_name} ~ {x_name}")
+        print(f"Sample size: T = {T}")
+        print(f"Max breaks: {max_breaks}, Dynamic lags: {dynamic_lags}")
+        print("=" * 70)
+    
+    # ==========================================
+    # Step 1: Unit Root Tests
+    # ==========================================
+    if verbose:
+        print("\n" + "─" * 70)
+        print("STEP 1: UNIT ROOT TESTS")
+        print("─" * 70)
+    
+    # Levels
+    adf_y, lag_y, _ = adf_test(y)
+    adf_x, lag_x, _ = adf_test(x)
+    
+    # First differences
+    adf_dy, lag_dy, _ = adf_test(np.diff(y))
+    adf_dx, lag_dx, _ = adf_test(np.diff(x))
+    
+    if verbose:
+        print(f"\n{y_name} (levels):  ADF = {adf_y:.3f} (lag={lag_y})")
+        print(f"{y_name} (Δ):       ADF = {adf_dy:.3f} (lag={lag_dy})")
+        print(f"{x_name} (levels):  ADF = {adf_x:.3f} (lag={lag_x})")
+        print(f"{x_name} (Δ):       ADF = {adf_dx:.3f} (lag={lag_dx})")
+        print("\n5% critical value ≈ -2.89")
+    
+    # Check I(1)
+    cv_5pct = -2.89
+    y_is_I1 = (adf_y > cv_5pct) and (adf_dy < cv_5pct)
+    x_is_I1 = (adf_x > cv_5pct) and (adf_dx < cv_5pct)
+    
+    if verbose:
+        print(f"\n{y_name} is I(1): {y_is_I1}")
+        print(f"{x_name} is I(1): {x_is_I1}")
+    
+    results['unit_root'] = {
+        'y_level': adf_y, 'y_diff': adf_dy, 'y_is_I1': y_is_I1,
+        'x_level': adf_x, 'x_diff': adf_dx, 'x_is_I1': x_is_I1
+    }
+    
+    # ==========================================
+    # Step 2: Benchmark Tests (No/Few Breaks)
+    # ==========================================
+    if verbose:
+        print("\n" + "─" * 70)
+        print("STEP 2: BENCHMARK COINTEGRATION TESTS")
+        print("─" * 70)
+    
+    # Engle-Granger (no breaks)
+    eg = engle_granger_test(y, x)
+    if verbose:
+        print(f"\nEngle-Granger (0 breaks):")
+        print(f"  Statistic: {eg.test_statistic:.4f}")
+        print(f"  Cointegrated at 5%: {eg.is_cointegrated}")
+    
+    # Gregory-Hansen (1 break)
+    gh = gregory_hansen_test(y, x, model='C/S')
+    if verbose:
+        print(f"\nGregory-Hansen (1 break, regime shift):")
+        print(f"  Statistic: {gh.test_statistic:.4f}")
+        print(f"  Cointegrated at 5%: {gh.is_cointegrated}")
+        if gh.n_breaks > 0 and len(gh.break_dates) > 0:
+            print(f"  Break at t={int(gh.break_dates[0])}")
+    
+    # Hatemi-J (2 breaks) - only if max_breaks >= 2
+    hj = None
+    if max_breaks >= 2:
+        hj = hatemi_j_test(y, x)
+        if verbose:
+            print(f"\nHatemi-J (2 breaks):")
+            print(f"  Statistic: {hj.test_statistic:.4f}")
+            print(f"  Cointegrated at 5%: {hj.is_cointegrated}")
+    
+    results['benchmarks'] = {
+        'engle_granger': eg,
+        'gregory_hansen': gh,
+        'hatemi_j': hj
+    }
+    
+    # ==========================================
+    # Step 3: Adaptive Lasso Analysis
+    # ==========================================
+    if verbose:
+        print("\n" + "─" * 70)
+        print(f"STEP 3: ADAPTIVE LASSO (up to {max_breaks} breaks)")
+        print("─" * 70)
+    
+    # Break detection
+    model = AdaptiveLassoBreaks(
+        max_breaks=max_breaks,
+        trim=0.05,
+        dynamic_lags=dynamic_lags
+    )
+    break_result = model.fit(x, y)
+    
+    if verbose:
+        print(f"\nBreaks detected: {break_result.n_breaks}")
+        if break_result.n_breaks > 0:
+            print(f"Break dates: {break_result.break_dates.tolist()}")
+            print(f"Break fractions: {[f'{f:.4f}' for f in break_result.break_fractions]}")
+        print(f"\nRegime coefficients:")
+        for i, (mu, beta) in enumerate(zip(break_result.regime_intercepts, 
+                                            break_result.regime_slopes)):
+            print(f"  Regime {i+1}: {y_name} = {mu:.4f} + {beta:.4f}*{x_name}")
+    
+    # Cointegration test with breaks
+    test = CointegrationTest(
+        max_breaks=max_breaks,
+        test_type='adf',
+        dynamic_lags=dynamic_lags
+    )
+    test_result = test.test(x, y)
+    
+    if verbose:
+        print(f"\nCointegration Test (ADF-type):")
+        print(f"  Statistic: {test_result.test_statistic:.4f}")
+        print(f"  Critical values: 10%={test_result.critical_values[0.10]:.2f}, "
+              f"5%={test_result.critical_values[0.05]:.2f}, "
+              f"1%={test_result.critical_values[0.01]:.2f}")
+        print(f"  Cointegrated at 5%: {test_result.is_cointegrated}")
+    
+    results['adaptive_lasso'] = {
+        'break_result': break_result,
+        'test_result': test_result,
+        'model': model
+    }
+    
+    # ==========================================
+    # Step 4: Summary
+    # ==========================================
+    if verbose:
+        print("\n" + "=" * 70)
+        print("SUMMARY")
+        print("=" * 70)
+        print(f"\nCointegration relationship: {y_name} = μ + β*{x_name}")
+        print(f"Structural breaks detected: {break_result.n_breaks}")
+        print(f"\nEvidence of cointegration:")
+        print(f"  Without breaks (EG):     {eg.is_cointegrated}")
+        print(f"  With 1 break (GH):       {gh.is_cointegrated}")
+        if hj:
+            print(f"  With 2 breaks (HJ):      {hj.is_cointegrated}")
+        print(f"  Adaptive Lasso:          {test_result.is_cointegrated}")
+        
+        if break_result.n_breaks > 0:
+            print(f"\nInterpretation:")
+            print(f"  The cointegrating relationship between {y_name} and {x_name}")
+            print(f"  exhibits {break_result.n_breaks} structural break(s).")
+            print(f"  The long-run equilibrium has changed over time.")
+    
+    results['summary'] = {
+        'n_breaks': break_result.n_breaks,
+        'cointegrated_eg': eg.is_cointegrated,
+        'cointegrated_gh': gh.is_cointegrated,
+        'cointegrated_hj': hj.is_cointegrated if hj else None,
+        'cointegrated_adaptive': test_result.is_cointegrated
+    }
+    
+    return results
+
+
+# ==========================================
+# Run Analysis on Lütkepohl Data
+# ==========================================
+if __name__ == "__main__":
+    # Load data
+    data = pd.read_excel('lutkepohl2.xlsx')
+    
+    # Run complete analysis: CONS as dependent, INV as independent, lag=2
+    results = complete_cointegration_analysis(
+        y=data['CONS'].values,
+        x=data['INV'].values,
+        max_breaks=2,
+        dynamic_lags=2,
+        var_names=('CONS', 'INV'),
+        verbose=True
+    )
+    
+    # Access specific results
+    break_result = results['adaptive_lasso']['break_result']
+    test_result = results['adaptive_lasso']['test_result']
+    
+    print("\n" + "=" * 70)
+    print("Results can be accessed programmatically:")
+    print("=" * 70)
+    print(f"  results['summary']['n_breaks'] = {results['summary']['n_breaks']}")
+    print(f"  results['summary']['cointegrated_adaptive'] = {results['summary']['cointegrated_adaptive']}")</code></pre>
+        </div>
+    </section>
+
+    <!-- Example 3: Different Configurations -->
+    <section class="content-section">
+        <div class="container">
+            <h2>Example 3: Exploring Different Configurations</h2>
+            <p>Compare results with different parameter settings:</p>
+            
+            <pre><code class="language-python">"""
+Sensitivity Analysis: Different Model Configurations
+"""
+import pandas as pd
+import numpy as np
+from selectbreakcoint import AdaptiveLassoBreaks, CointegrationTest
+
+# Load data
+data = pd.read_excel('lutkepohl2.xlsx')
+cons = data['CONS'].values
+inv = data['INV'].values
+
+print("=" * 70)
+print("SENSITIVITY ANALYSIS")
+print("=" * 70)
+
+# Configuration 1: Conservative (fewer breaks)
+print("\n1. Conservative Configuration (max_breaks=1)")
+print("-" * 50)
+model1 = AdaptiveLassoBreaks(max_breaks=1, trim=0.10, dynamic_lags=2)
+result1 = model1.fit(inv, cons)
+print(f"   Breaks detected: {result1.n_breaks}")
+print(f"   BIC: {result1.bic:.4f}")
+
+# Configuration 2: Standard (your specification)
+print("\n2. Standard Configuration (max_breaks=2, lag=2)")
+print("-" * 50)
+model2 = AdaptiveLassoBreaks(max_breaks=2, trim=0.05, dynamic_lags=2)
+result2 = model2.fit(inv, cons)
+print(f"   Breaks detected: {result2.n_breaks}")
+print(f"   BIC: {result2.bic:.4f}")
+
+# Configuration 3: Liberal (more breaks allowed)
+print("\n3. Liberal Configuration (max_breaks=4)")
+print("-" * 50)
+model3 = AdaptiveLassoBreaks(max_breaks=4, trim=0.05, dynamic_lags=2)
+result3 = model3.fit(inv, cons)
+print(f"   Breaks detected: {result3.n_breaks}")
+print(f"   BIC: {result3.bic:.4f}")
+
+# Configuration 4: No endogeneity correction
+print("\n4. No Endogeneity Correction (dynamic_lags=0)")
+print("-" * 50)
+model4 = AdaptiveLassoBreaks(max_breaks=2, trim=0.05, dynamic_lags=0)
+result4 = model4.fit(inv, cons)
+print(f"   Breaks detected: {result4.n_breaks}")
+print(f"   BIC: {result4.bic:.4f}")
+
+# Summary comparison
+print("\n" + "=" * 70)
+print("SUMMARY COMPARISON")
+print("=" * 70)
+print(f"{'Configuration':<35} {'Breaks':>8} {'BIC':>12}")
+print("-" * 60)
+print(f"{'1. Conservative (max=1)':<35} {result1.n_breaks:>8} {result1.bic:>12.4f}")
+print(f"{'2. Standard (max=2, lag=2)':<35} {result2.n_breaks:>8} {result2.bic:>12.4f}")
+print(f"{'3. Liberal (max=4)':<35} {result3.n_breaks:>8} {result3.bic:>12.4f}")
+print(f"{'4. No endogeneity (lag=0)':<35} {result4.n_breaks:>8} {result4.bic:>12.4f}")
+
+print("\nNote: Lower BIC indicates better model fit.")</code></pre>
+        </div>
+    </section>
+
+    <!-- Comparison Table -->
+    <section class="content-section">
+        <div class="container">
+            <h2>Method Comparison Summary</h2>
+            <p>Summary of different cointegration testing approaches available in the package:</p>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Max Breaks</th>
+                            <th>Break Location</th>
+                            <th>Function</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Engle-Granger</td>
+                            <td>0</td>
+                            <td>N/A</td>
+                            <td><code>engle_granger_test()</code></td>
+                            <td>Baseline, no suspected breaks</td>
+                        </tr>
+                        <tr>
+                            <td>Gregory-Hansen</td>
+                            <td>1</td>
+                            <td>Grid search</td>
+                            <td><code>gregory_hansen_test()</code></td>
+                            <td>Single suspected break</td>
+                        </tr>
+                        <tr>
+                            <td>Hatemi-J</td>
+                            <td>2</td>
+                            <td>Grid search</td>
+                            <td><code>hatemi_j_test()</code></td>
+                            <td>Two suspected breaks</td>
+                        </tr>
+                        <tr>
+                            <td>Adaptive Lasso</td>
+                            <td>1-6+</td>
+                            <td>Data-driven</td>
+                            <td><code>CointegrationTest()</code></td>
+                            <td>Unknown number of breaks</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <h4>💡 Recommendation</h4>
+                <p>For the Lütkepohl data analysis, use <code>AdaptiveLassoBreaks</code> with <code>max_breaks=2</code> and <code>dynamic_lags=2</code> as your primary specification. Compare with Engle-Granger and Gregory-Hansen tests for robustness.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-icon">⟨⟩</span>
+                    <span class="logo-text">selectbreakcoint</span>
+                    <p>Developed by Dr. Merwan Roudane</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="getting-started.html">Getting Started</a>
+                        <a href="api-reference.html">API Reference</a>
+                        <a href="examples.html">Examples</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="theory.html">Theory</a>
+                        <a href="https://github.com/merwanroudane/selectbreakcoint" target="_blank">GitHub</a>
+                        <a href="https://pypi.org/project/selectbreakcoint/" target="_blank">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 selectbreakcoint. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

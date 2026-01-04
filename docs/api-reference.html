@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - selectbreakcoint</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">⟨⟩</span>
+                <span class="logo-text">selectbreakcoint</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="getting-started.html">Getting Started</a></li>
+                <li><a href="api-reference.html" class="active">API Reference</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="theory.html">Theory</a></li>
+                <li><a href="https://github.com/merwanroudane/selectbreakcoint" class="nav-github" target="_blank">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                </a></li>
+            </ul>
+            <button class="nav-toggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <h1>API Reference</h1>
+            <p>Complete documentation of all classes, methods, and utility functions.</p>
+        </div>
+    </header>
+
+    <!-- Main Classes Section -->
+    <section class="content-section">
+        <div class="container">
+            <h2>Main Classes</h2>
+
+            <!-- AdaptiveLassoBreaks -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">AdaptiveLassoBreaks</span>
+                    <span class="api-badge">Class</span>
+                </div>
+                <p>Main class for detecting and estimating multiple structural breaks in cointegrating regressions using the adaptive lasso approach.</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import AdaptiveLassoBreaks
+
+model = AdaptiveLassoBreaks(
+    max_breaks=1,           # Maximum number of structural breaks
+    trim=0.05,              # Lateral trimming parameter (5%)
+    min_obs=1,              # Minimum observations per regime
+    n_lambda=100,           # Number of lambda values in grid
+    gamma=1.0,              # Exponent for adaptive lasso weights
+    penalty_type='bic_star',# Model selection criterion
+    dynamic_lags=0          # Leads/lags for endogeneity correction
+)</code></pre>
+
+                <div class="api-params">
+                    <h4>Parameters</h4>
+                    <div class="param-item">
+                        <span class="param-name">max_breaks</span>
+                        <span class="param-type">int, default=1</span>
+                        <p class="param-desc">Maximum number of structural breaks to detect. The algorithm will find the optimal number up to this limit.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">trim</span>
+                        <span class="param-type">float, default=0.05</span>
+                        <p class="param-desc">Lateral trimming parameter. Excludes the first and last trim×100% of observations as potential break points.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">min_obs</span>
+                        <span class="param-type">int, default=1</span>
+                        <p class="param-desc">Minimum number of observations per regime.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">n_lambda</span>
+                        <span class="param-type">int, default=100</span>
+                        <p class="param-desc">Number of lambda values in the regularization path grid.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">gamma</span>
+                        <span class="param-type">float, default=1.0</span>
+                        <p class="param-desc">Exponent for adaptive lasso weights. Higher values increase penalization of small coefficients.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">penalty_type</span>
+                        <span class="param-type">str, default='bic_star'</span>
+                        <p class="param-desc">Model selection criterion. Options: 'bic' (standard BIC), 'bic_star' (modified BIC for diverging parameters).</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">dynamic_lags</span>
+                        <span class="param-type">int, default=0</span>
+                        <p class="param-desc">Number of leads and lags of the differenced regressor to include for endogeneity correction.</p>
+                    </div>
+                </div>
+
+                <div class="api-params">
+                    <h4>Methods</h4>
+                    <div class="param-item">
+                        <span class="param-name">fit(x, y, known_breaks=None)</span>
+                        <p class="param-desc">Estimate structural breaks. Returns <code>BreakEstimationResult</code>.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">predict(x_new)</span>
+                        <p class="param-desc">Predict y values using the fitted model. Returns predicted values array.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">get_residuals()</span>
+                        <p class="param-desc">Get model residuals. Returns residuals array.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CointegrationTest -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">CointegrationTest</span>
+                    <span class="api-badge">Class</span>
+                </div>
+                <p>Class for testing cointegration while allowing for multiple structural breaks. Implements Algorithm 2 from Schmidt and Schweikert (2021).</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import CointegrationTest
+
+test = CointegrationTest(
+    max_breaks=1,           # Maximum number of structural breaks
+    trim=0.05,              # Lateral trimming parameter
+    test_type='adf',        # Test type: 'adf' or 'zt'
+    lag_selection='aic',    # Lag selection method
+    n_lambda=100,           # Number of lambda values
+    dynamic_lags=0          # Leads/lags for endogeneity
+)</code></pre>
+
+                <div class="api-params">
+                    <h4>Parameters</h4>
+                    <div class="param-item">
+                        <span class="param-name">max_breaks</span>
+                        <span class="param-type">int, default=1</span>
+                        <p class="param-desc">Maximum number of structural breaks to allow under the alternative hypothesis.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">trim</span>
+                        <span class="param-type">float, default=0.05</span>
+                        <p class="param-desc">Lateral trimming parameter.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">test_type</span>
+                        <span class="param-type">str, default='adf'</span>
+                        <p class="param-desc">Test statistic type. 'adf' for ADF-type, 'zt' for bias-corrected Z_t statistic.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">lag_selection</span>
+                        <span class="param-type">str, default='aic'</span>
+                        <p class="param-desc">Lag order selection method for ADF test. Options: 'aic', 'bic', 'fixed'.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">n_lambda</span>
+                        <span class="param-type">int, default=100</span>
+                        <p class="param-desc">Number of lambda values in the grid.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">dynamic_lags</span>
+                        <span class="param-type">int, default=0</span>
+                        <p class="param-desc">Number of leads and lags for dynamic augmentation.</p>
+                    </div>
+                </div>
+
+                <div class="api-params">
+                    <h4>Methods</h4>
+                    <div class="param-item">
+                        <span class="param-name">test(x, y)</span>
+                        <p class="param-desc">Perform cointegration test. Returns <code>CointegrationTestResult</code>.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">is_cointegrated(significance=0.05)</span>
+                        <p class="param-desc">Check if series are cointegrated at given significance level. Returns boolean.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">get_breaks()</span>
+                        <p class="param-desc">Get estimated break dates and fractions. Returns tuple (break_fractions, break_dates).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Result Classes Section -->
+    <section class="content-section">
+        <div class="container">
+            <h2>Result Classes</h2>
+
+            <!-- BreakEstimationResult -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">BreakEstimationResult</span>
+                    <span class="api-badge">Dataclass</span>
+                </div>
+                <p>Container for structural break estimation results. Returned by <code>AdaptiveLassoBreaks.fit()</code>.</p>
+                
+                <div class="api-params">
+                    <h4>Attributes</h4>
+                    <div class="param-item">
+                        <span class="param-name">n_breaks</span>
+                        <span class="param-type">int</span>
+                        <p class="param-desc">Number of detected structural breaks.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">break_fractions</span>
+                        <span class="param-type">np.ndarray</span>
+                        <p class="param-desc">Estimated break fractions τ ∈ (0, 1).</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">break_dates</span>
+                        <span class="param-type">np.ndarray</span>
+                        <p class="param-desc">Estimated break date indices.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">intercept_coefs</span>
+                        <span class="param-type">np.ndarray</span>
+                        <p class="param-desc">Baseline intercept coefficients (μ*₁).</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">slope_coefs</span>
+                        <span class="param-type">np.ndarray</span>
+                        <p class="param-desc">Baseline slope coefficients (β*₁).</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">intercept_changes</span>
+                        <span class="param-type">np.ndarray</span>
+                        <p class="param-desc">Parameter changes at each break (μ*ᵢ for i > 1).</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">slope_changes</span>
+                        <span class="param-type">np.ndarray</span>
+                        <p class="param-desc">Parameter changes at each break (β*ⱼ for j > 1).</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">residuals</span>
+                        <span class="param-type">np.ndarray</span>
+                        <p class="param-desc">Estimated residuals from the cointegrating regression.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">bic</span>
+                        <span class="param-type">float</span>
+                        <p class="param-desc">BIC value for the selected model.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">optimal_lambda</span>
+                        <span class="param-type">float</span>
+                        <p class="param-desc">Optimal tuning parameter from adaptive lasso.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">sample_size</span>
+                        <span class="param-type">int</span>
+                        <p class="param-desc">Sample size T.</p>
+                    </div>
+                </div>
+
+                <div class="api-params">
+                    <h4>Properties</h4>
+                    <div class="param-item">
+                        <span class="param-name">regime_intercepts</span>
+                        <span class="param-type">np.ndarray</span>
+                        <p class="param-desc">Intercept values for each regime (cumulative sum of baseline + changes).</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">regime_slopes</span>
+                        <span class="param-type">np.ndarray</span>
+                        <p class="param-desc">Slope values for each regime (cumulative sum of baseline + changes).</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">ssr</span>
+                        <span class="param-type">float</span>
+                        <p class="param-desc">Sum of squared residuals.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">mse</span>
+                        <span class="param-type">float</span>
+                        <p class="param-desc">Mean squared error.</p>
+                    </div>
+                </div>
+
+                <div class="api-params">
+                    <h4>Methods</h4>
+                    <div class="param-item">
+                        <span class="param-name">summary()</span>
+                        <p class="param-desc">Generate a formatted summary string of results.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">to_dict()</span>
+                        <p class="param-desc">Convert result to dictionary for serialization.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CointegrationTestResult -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">CointegrationTestResult</span>
+                    <span class="api-badge">Dataclass</span>
+                </div>
+                <p>Container for cointegration test results. Returned by <code>CointegrationTest.test()</code>.</p>
+                
+                <div class="api-params">
+                    <h4>Attributes</h4>
+                    <div class="param-item">
+                        <span class="param-name">test_statistic</span>
+                        <span class="param-type">float</span>
+                        <p class="param-desc">Test statistic value (ADF or Z_t).</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">critical_values</span>
+                        <span class="param-type">dict</span>
+                        <p class="param-desc">Critical values at different significance levels {0.01: cv, 0.05: cv, 0.10: cv}.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">reject_null</span>
+                        <span class="param-type">dict</span>
+                        <p class="param-desc">Boolean indicators for rejection at each significance level.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">test_type</span>
+                        <span class="param-type">str</span>
+                        <p class="param-desc">Type of test ('adf' or 'zt').</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">n_breaks</span>
+                        <span class="param-type">int</span>
+                        <p class="param-desc">Number of breaks in the selected model.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">break_fractions</span>
+                        <span class="param-type">np.ndarray</span>
+                        <p class="param-desc">Estimated break fractions under the alternative.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">break_dates</span>
+                        <span class="param-type">np.ndarray</span>
+                        <p class="param-desc">Estimated break dates under the alternative.</p>
+                    </div>
+                </div>
+
+                <div class="api-params">
+                    <h4>Properties</h4>
+                    <div class="param-item">
+                        <span class="param-name">is_cointegrated</span>
+                        <span class="param-type">bool</span>
+                        <p class="param-desc">True if null hypothesis of no cointegration is rejected at 5% level.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Functions Section -->
+    <section class="content-section">
+        <div class="container">
+            <h2>Test Functions</h2>
+
+            <!-- adf_test -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">adf_test</span>
+                    <span class="api-badge">Function</span>
+                </div>
+                <p>Augmented Dickey-Fuller test on residuals.</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import adf_test
+
+adf_stat, selected_lag, coefs = adf_test(
+    residuals,              # Residuals from cointegrating regression
+    max_lags=None,          # Maximum lags (default: T^(1/3))
+    lag_selection='aic'     # 'aic', 'bic', or 'fixed'
+)</code></pre>
+
+                <div class="api-params">
+                    <h4>Returns</h4>
+                    <div class="param-item">
+                        <span class="param-name">adf_stat</span>
+                        <span class="param-type">float</span>
+                        <p class="param-desc">ADF test statistic (t-ratio for ρ).</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">selected_lag</span>
+                        <span class="param-type">int</span>
+                        <p class="param-desc">Selected lag order.</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">coefs</span>
+                        <span class="param-type">np.ndarray</span>
+                        <p class="param-desc">Coefficients from the ADF regression.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- phillips_perron_test -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">phillips_perron_test</span>
+                    <span class="api-badge">Function</span>
+                </div>
+                <p>Phillips-Perron test for unit root in residuals with bias-corrected Z_t statistic.</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import phillips_perron_test
+
+z_t, rho_hat, sigma2 = phillips_perron_test(
+    residuals,              # Residuals from cointegrating regression
+    bandwidth=None          # Bandwidth for long-run variance (default: Newey-West)
+)</code></pre>
+            </div>
+
+            <!-- engle_granger_test -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">engle_granger_test</span>
+                    <span class="api-badge">Function</span>
+                </div>
+                <p>Engle-Granger two-step cointegration test (no structural breaks).</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import engle_granger_test
+
+result = engle_granger_test(y, x, max_lags=None, test_type='adf')
+print(f"Cointegrated? {result.is_cointegrated}")</code></pre>
+            </div>
+
+            <!-- gregory_hansen_test -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">gregory_hansen_test</span>
+                    <span class="api-badge">Function</span>
+                </div>
+                <p>Gregory-Hansen cointegration test with one structural break.</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import gregory_hansen_test
+
+result = gregory_hansen_test(
+    y, x,
+    model='C/S',    # 'C' (level), 'C/T' (level+trend), 'C/S' (regime shift)
+    trim=0.15       # Trimming parameter
+)
+print(f"Break date: {result.break_dates[0]}")</code></pre>
+            </div>
+
+            <!-- hatemi_j_test -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">hatemi_j_test</span>
+                    <span class="api-badge">Function</span>
+                </div>
+                <p>Hatemi-J cointegration test with two structural breaks.</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import hatemi_j_test
+
+result = hatemi_j_test(y, x, trim=0.15)
+print(f"Break dates: {result.break_dates}")</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Utility Functions Section -->
+    <section class="content-section">
+        <div class="container">
+            <h2>Utility Functions</h2>
+
+            <!-- get_critical_values -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">get_critical_values</span>
+                    <span class="api-badge">Function</span>
+                </div>
+                <p>Retrieve critical values from Schmidt and Schweikert (2021) tables.</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import get_critical_values
+
+cv = get_critical_values(
+    max_breaks=2,           # Maximum breaks (1-6)
+    sample_size=200,        # T=100, 200, 400, or 'asymptotic'
+    test_type='adf'         # 'adf' or 'zt'
+)
+print(cv)  # {0.01: -5.23, 0.05: -4.71, 0.10: -4.42}</code></pre>
+            </div>
+
+            <!-- construct_break_indicators -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">construct_break_indicators</span>
+                    <span class="api-badge">Function</span>
+                </div>
+                <p>Construct indicator variables for structural breaks.</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import construct_break_indicators
+
+# Create indicators for breaks at 30% and 70% of sample
+indicators = construct_break_indicators(
+    T=100,                      # Sample size
+    break_fractions=[0.3, 0.7], # Break fractions
+    include_baseline=True       # Include column of ones
+)
+# Shape: (100, 3) - baseline + 2 break indicators</code></pre>
+            </div>
+
+            <!-- compute_bic -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">compute_bic</span>
+                    <span class="api-badge">Function</span>
+                </div>
+                <p>Compute the Bayesian Information Criterion.</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import compute_bic
+
+bic = compute_bic(residuals, n_params=4, T=200)
+# BIC = log(SSR/T) + log(T)/T * df</code></pre>
+            </div>
+
+            <!-- compute_modified_bic -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">compute_modified_bic</span>
+                    <span class="api-badge">Function</span>
+                </div>
+                <p>Compute the modified BIC for diverging number of parameters (Wang, Li & Leng, 2009).</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import compute_modified_bic
+
+bic_star = compute_modified_bic(
+    residuals, 
+    n_params=4,         # Non-zero parameters
+    T=200,              # Sample size
+    n_total_params=50   # Total potential parameters
+)</code></pre>
+            </div>
+
+            <!-- dynamic_augmentation -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">dynamic_augmentation</span>
+                    <span class="api-badge">Function</span>
+                </div>
+                <p>Construct leads and lags of first-differenced regressor for endogeneity correction.</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import dynamic_augmentation
+
+z_data = dynamic_augmentation(x, k=2)
+# Returns matrix of shape (T, 2*k+1) with Δx and its leads/lags</code></pre>
+            </div>
+
+            <!-- hausdorff_distance -->
+            <div class="api-method">
+                <div class="api-method-header">
+                    <span class="api-method-name">hausdorff_distance</span>
+                    <span class="api-badge">Function</span>
+                </div>
+                <p>Compute Hausdorff distance between estimated and true break points.</p>
+                
+                <pre><code class="language-python">from selectbreakcoint import hausdorff_distance
+
+# Measure accuracy of break date estimation
+hd = hausdorff_distance(
+    estimated_breaks=[0.32, 0.68],  # Estimated fractions
+    true_breaks=[0.33, 0.67]        # True fractions
+)
+print(f"Hausdorff distance: {hd:.4f}")  # 0.01</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Critical Values Tables -->
+    <section class="content-section">
+        <div class="container">
+            <h2>Critical Values Tables</h2>
+            <p>Critical values from Table 1 of Schmidt and Schweikert (2021) are built into the package:</p>
+            
+            <h3>ADF-Type Test Statistics</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Max Breaks</th>
+                            <th>T</th>
+                            <th>10%</th>
+                            <th>5%</th>
+                            <th>1%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>100</td><td>-4.11</td><td>-4.42</td><td>-5.03</td></tr>
+                        <tr><td>1</td><td>200</td><td>-4.18</td><td>-4.48</td><td>-5.08</td></tr>
+                        <tr><td>2</td><td>100</td><td>-4.42</td><td>-4.71</td><td>-5.23</td></tr>
+                        <tr><td>2</td><td>200</td><td>-4.48</td><td>-4.75</td><td>-5.28</td></tr>
+                        <tr><td>3</td><td>100</td><td>-4.65</td><td>-4.91</td><td>-5.43</td></tr>
+                        <tr><td>3</td><td>200</td><td>-4.70</td><td>-4.96</td><td>-5.47</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box">
+                <h4>💡 Note</h4>
+                <p>The null hypothesis is no cointegration. Reject H₀ if the test statistic is more negative than the critical value.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-icon">⟨⟩</span>
+                    <span class="logo-text">selectbreakcoint</span>
+                    <p>Developed by Dr. Merwan Roudane</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Documentation</h4>
+                        <a href="getting-started.html">Getting Started</a>
+                        <a href="api-reference.html">API Reference</a>
+                        <a href="examples.html">Examples</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <a href="theory.html">Theory</a>
+                        <a href="https://github.com/merwanroudane/selectbreakcoint" target="_blank">GitHub</a>
+                        <a href="https://pypi.org/project/selectbreakcoint/" target="_blank">PyPI</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 selectbreakcoint. MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
